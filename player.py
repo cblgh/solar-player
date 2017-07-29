@@ -7,6 +7,13 @@ import time
 MPV_SCRIPTS = {"start": "./start.sh", "pause": "./pause.sh", "resume": "./unpause.sh", "loop": "./loop.sh", "load":
         "./load.sh", "append": "./append.sh"}
 
+# the interval by which we check to see if any pins have changed
+POLLING_INTERVAL = 0.15
+
+# paths that are used
+BASE_PATH = "/home/pi/Videos"
+SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
+
 # GPIO pins that are used
 BUTTON1_PIN = 17
 BUTTON2_PIN = 27
@@ -24,7 +31,7 @@ SHOW_SLIDESHOW = 7
 ON = True
 OFF = False
 
-# setup the pins to read from
+# setup the pins we read from
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON1_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
 gpio.setup(BUTTON2_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
@@ -34,13 +41,11 @@ gpio.setup(BUTTON3_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
 # gpio.add_event_detect(BUTTON1_PIN, gpio.RISING)
 # gpio.add_event_callback(BUTTON1_PIN, callback)
 
-# start server with a blank video
+# start server with a looping blank video
 subprocess.Popen([MPV_SCRIPTS["start"], "/home/pi/Videos/empty.m4v"])
 current_state = SHOW_EMPTY
-BASE_PATH = "/home/pi/Videos"
-SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
 
-# find all movies in the slideshow folder, to be played sequentially (and looped) during state SHOW_SLIDESHOW
+# find all movies in the slideshow folder (which will be played sequentially and looped during state SHOW_SLIDESHOW)
 slideshow_movies = [f for f in os.listdir(SLIDESHOW_PATH) if os.path.isfile(os.path.join(SLIDESHOW_PATH, f))]
 
 # start looping, checking peridiodically for button inputs
@@ -50,8 +55,7 @@ while True:
     button_3 = not gpio.input(BUTTON3_PIN)
     buttons = [button_1, button_2, button_3]
 
-    print "Button 1 input: {}\nButton 2 input: {}\nButton 3 input: {}\n".format(button_1, button_2,
-            button_3)
+    print "Button 1 input: {}\nButton 2 input: {}\nButton 3 input: {}\n".format(*buttons)
 
     if buttons == [ON, ON, OFF] and current_state is not LOADING:
     # if button_1 and button_2 and not button_3 and current_state is not LOADING:
@@ -91,4 +95,4 @@ while True:
             subprocess.Popen([MPV_SCRIPTS["append"], "{}/{}.mp4".format(BASE_PATH, movie)])
 
     # sleep a bit to avoid taxing the cpu
-    time.sleep(.15)
+    time.sleep(POLLING_INTERVAL)
