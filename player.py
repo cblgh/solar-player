@@ -20,6 +20,10 @@ SHOW_MOVIE = 5
 SHOW_EMPTY = 6
 SHOW_SLIDESHOW = 7
 
+# syntactic sugar
+ON = True
+OFF = False
+
 # setup the pins to read from
 gpio.setmode(gpio.BCM)
 gpio.setup(BUTTON1_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
@@ -44,21 +48,25 @@ while True:
     button_1 = not gpio.input(BUTTON1_PIN)
     button_2 = not gpio.input(BUTTON2_PIN)
     button_3 = not gpio.input(BUTTON3_PIN)
+    buttons = [button_1, button_2, button_3]
 
     print "Button 1 input: {}\nButton 2 input: {}\nButton 3 input: {}\n".format(button_1, button_2,
             button_3)
 
-    if button_1 and button_2 and not button_3 and current_state is not LOADING:
+    if buttons == [ON, ON, OFF] and current_state is not LOADING:
+    # if button_1 and button_2 and not button_3 and current_state is not LOADING:
         # state 1: loading
         subprocess.Popen([MPV_SCRIPTS["loop"], "{}/loading.mp4".format(BASE_PATH)])
         current_state = LOADING
         print "LOADING"
-    elif not button_1 and button_2 and button_3 and current_state is not PAUSED:
+    elif buttons == [OFF, ON, ON] and current_state is not PAUSED:
+    # elif not button_1 and button_2 and button_3 and current_state is not PAUSED:
         # state 4: pause
         subprocess.call([MPV_SCRIPTS["pause"]])
         current_state = PAUSED
         print "PAUSE"
-    elif not button_1 and button_2 and not button_3 and current_state is not SHOW_MOVIE:
+    elif buttons == [OFF, ON, OFF] and current_state is not SHOW_MOVIE:
+    # elif not button_1 and button_2 and not button_3 and current_state is not SHOW_MOVIE:
         # state 5: resume
         if current_state == PAUSED:
             subprocess.Popen([MPV_SCRIPTS["resume"]])
@@ -66,12 +74,14 @@ while True:
             subprocess.Popen([MPV_SCRIPTS["loop"], "{}/video.mp4".format(BASE_PATH)])
         print "SHOW MOVIE"
         current_state = SHOW_MOVIE
-    elif not button_1 and not button_2 and button_3 and current_state is not SHOW_EMPTY:
+    elif buttons == [OFF, OFF, ON] and current_state is not SHOW_EMPTY:
+    # elif not button_1 and not button_2 and button_3 and current_state is not SHOW_EMPTY:
         # state 6: show a black screen
         subprocess.Popen([MPV_SCRIPTS["loop"], "{}/empty.m4v".format(BASE_PATH)])
         print "SHOW EMPTY SCREEN"
         current_state = SHOW_EMPTY
-    elif not button_1 and not button_2 and not button_3 and current_state is not SHOW_SLIDESHOW:
+    elif buttons == [OFF, OFF, OFF] and current_state is not SHOW_SLIDESHOW:
+    # elif not button_1 and not button_2 and not button_3 and current_state is not SHOW_SLIDESHOW:
         # state 7: show 3 movies in sequence
         print "SHOW 3 MOVIES IN SEQUENCE"
         current_state = SHOW_SLIDESHOW
