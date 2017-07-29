@@ -1,8 +1,11 @@
 import RPi.GPIO as gpio
 import subprocess
-from time import sleep
+import os
+import time
 
-SCRIPTS = {"start": "./start.sh", "pause": "./pause.sh", "resume": "./unpause.sh", "loop": "./loop.sh"}
+# mpv scripts to call depending on button I/O, see https://github.com/cblgh/mpv-control for scripts 
+MPV_SCRIPTS = {"start": "./start.sh", "pause": "./pause.sh", "resume": "./unpause.sh", "loop": "./loop.sh", "load":
+        "./load.sh", "append": "./append.sh"}
 
 # GPIO pins that are used
 BUTTON1_PIN = 17
@@ -28,9 +31,15 @@ gpio.setup(BUTTON3_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
 # gpio.add_event_callback(BUTTON1_PIN, callback)
 
 # start server with a blank video
-subprocess.Popen([SCRIPTS["start"], "/home/pi/Videos/empty.m4v"])
+subprocess.Popen([MPV_SCRIPTS["start"], "/home/pi/Videos/empty.m4v"])
 current_state = SHOW_EMPTY
+BASE_PATH = "/home/pi/Videos"
+SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
 
+# find all movies in the slideshow folder, to be played sequentially (and looped) during state SHOW_SLIDESHOW
+slideshow_movies = [f for f in os.listdir(SLIDESHOW_PATH) if os.path.isfile(os.path.join(SLIDESHOW_PATH, f))]
+
+# start looping, checking peridiodically for button inputs
 while True:
     button_1 = not gpio.input(BUTTON1_PIN)
     button_2 = not gpio.input(BUTTON2_PIN)
@@ -41,30 +50,35 @@ while True:
 
     if button_1 and button_2 and not button_3 and current_state is not LOADING:
         # state 1: loading
-        subprocess.Popen([SCRIPTS["loop"], "/home/pi/Videos/loading.mp4"])
+        subprocess.Popen([MPV_SCRIPTS["loop"], "{}/loading.mp4".format(BASE_PATH)])
         current_state = LOADING
         print "LOADING"
     elif not button_1 and button_2 and button_3 and current_state is not PAUSED:
         # state 4: pause
-        subprocess.call([SCRIPTS["pause"]])
+        subprocess.call([MPV_SCRIPTS["pause"]])
         current_state = PAUSED
         print "PAUSE"
     elif not button_1 and button_2 and not button_3 and current_state is not SHOW_MOVIE:
         # state 5: resume
         if current_state == PAUSED:
-            subprocess.Popen([SCRIPTS["resume"]])
+            subprocess.Popen([MPV_SCRIPTS["resume"]])
         else:
-            subprocess.Popen([SCRIPTS["loop"], "/home/pi/Videos/video.mp4"])
+            subprocess.Popen([MPV_SCRIPTS["loop"], "{}/video.mp4".format(BASE_PATH)])
         print "SHOW MOVIE"
         current_state = SHOW_MOVIE
     elif not button_1 and not button_2 and button_3 and current_state is not SHOW_EMPTY:
         # state 6: show a black screen
-        subprocess.Popen([SCRIPTS["loop"], "/home/pi/Videos/empty.m4v"])
+        subprocess.Popen([MPV_SCRIPTS["loop"], "{}/empty.m4v".format(BASE_PATH)])
         print "SHOW EMPTY SCREEN"
         current_state = SHOW_EMPTY
     elif not button_1 and not button_2 and not button_3 and current_state is not SHOW_SLIDESHOW:
-        # state 7: show 3 movies in sequence, todo
+        # state 7: show 3 movies in sequence
         print "SHOW 3 MOVIES IN SEQUENCE"
         current_state = SHOW_SLIDESHOW
+        subprocess.Popen([MPV_SCRIPTS["loop"], "{}/{}".format(BASE_PATH, slideshow_movies[0])])
+        for movie in slideshow_movies[1:]:
+            print "APPENDING " + movie
+            subprocess.Popen([MPV_SCRIPTS["append"], "{}/{}.mp4".format(BASE_PATH, movie)])
 
-    sleep(0.3)
+    # sleep a bit to avoid taxing the cpu
+    time.sleep(.15)
