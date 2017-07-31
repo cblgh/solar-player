@@ -37,7 +37,6 @@ This was made to be used for an installation which had certain needs. Fundamenta
 1. Slideshow mode, showing a sequence of movies one after the other
    * The sequence of movies is found in the path `{BASE_PATH}/slideshow`. 
   The names don't matter, and neither does the number of files. They do however have to end with one of the formats found in `FILE_FORMATS` above.
-### Showing a blank scree
 
 ### Startup script
 To start the script automatically on a Raspberry Pi Zero with Raspbian installed I added the following to `/etc/rc.local`
