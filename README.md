@@ -28,14 +28,14 @@ MPV_SCRIPT_DIRECTORY = "."
 
 ### Assumptions
 This was made to be used for an installation which had certain needs. Fundamentally there are four different states the player can be in.  
-1 Showing a blank screen
-  * This is done through looping a blank video file with name `empty.m4v` located in `BASE_PATH`.
-1 Showing a loading video
-  * This is done through looping a video file with name `loading.mp4` located in `BASE_PATH`.
-1 Playing the main video
-  * This is done through looping a video file with name `video.mp4` located in `BASE_PATH`.
-1 Slideshow mode, showing a sequence of movies one after the other
-  * The sequence of movies is found in the path `{BASE_PATH}/slideshow`. 
+1. Showing a blank screen
+   * This is done through looping a blank video file with name `empty.m4v` located in `BASE_PATH`.
+1. Showing a loading video
+   * This is done through looping a video file with name `loading.mp4` located in `BASE_PATH`.
+1. Playing the main video
+   * This is done through looping a video file with name `video.mp4` located in `BASE_PATH`.
+1. Slideshow mode, showing a sequence of movies one after the other
+   * The sequence of movies is found in the path `{BASE_PATH}/slideshow`. 
   The names don't matter, and neither does the number of files. They do however have to end with one of the formats found in `FILE_FORMATS` above.
 ### Showing a blank scree
 
