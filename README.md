@@ -1,6 +1,6 @@
 # solar-player
-a python script for controlling an [mpv](https://mpv.io/) player using [GPIO](https://pinout.xyz/) inputs.  
-Intended to be used in combination with [mpv-control](https://github.com/cblgh/mpv-control).
+a python script for controlling an [mpv](https://mpv.io/) player using [GPIO](https://pinout.xyz/) inputs  
+Intended to be used in combination with [mpv-control](https://github.com/cblgh/mpv-control)
 
 ### Usage
 ```py
