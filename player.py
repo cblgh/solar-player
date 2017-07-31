@@ -4,6 +4,17 @@ import os
 import time
 import os
 
+# the interval by which we check to see if any pins have changed
+POLLING_INTERVAL = 0.15
+
+# paths that are used, change BASE_PATH to where your movies will reside
+BASE_PATH = "/home/pi/Videos"
+# the name of the subfolder of BASE_PATH that will contain your slideshow movies 
+# (i.e. 3 movies-in-sequence movies)
+SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
+# the file formats you want to play from the slideshow directory
+FILE_FORMATS = ("mp4", "m4v", "avi", "webm")
+
 # change this from ".", by which is meant the current directory, to the directory of the mpv scripts
 MPV_SCRIPT_DIRECTORY = "."
 # mpv scripts to call depending on button I/O, see https://github.com/cblgh/mpv-control for scripts 
@@ -14,14 +25,6 @@ for key, script in MPV_SCRIPTS.viewitems():
     # os.path.expanduser expands relative directories such as ~/dir to /home/pi/dir
     MPV_SCRIPTS[key] = os.path.expanduser(os.path.join(MPV_SCRIPT_DIRECTORY, script))
 
-# the interval by which we check to see if any pins have changed
-POLLING_INTERVAL = 0.15
-
-# paths that are used, change BASE_PATH to where your movies will reside
-BASE_PATH = "/home/pi/Videos"
-# and SLIDESHOW_PATH to the name of the subfolder in base path that will contain your slideshow movies 
-# (i.e. 3 movies-in-sequence movies)
-SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
 
 # GPIO pins that are used
 BUTTON1_PIN = 17
@@ -54,11 +57,11 @@ gpio.setup(BUTTON3_PIN, gpio.IN, pull_up_down=gpio.PUD_UP)
 # gpio.add_event_callback(BUTTON1_PIN, callback)
 
 # start server with a looping blank video
-subprocess.Popen([MPV_SCRIPTS["start"], "/home/pi/Videos/empty.m4v"])
+subprocess.Popen([MPV_SCRIPTS["start"], "{}/empty.m4v".format(BASE_PATH)])
 current_state = SHOW_EMPTY
 
 # find all movies in the slideshow folder (which will be played sequentially and looped during state SHOW_SLIDESHOW)
-slideshow_movies = [f for f in os.listdir(SLIDESHOW_PATH) if os.path.isfile(os.path.join(SLIDESHOW_PATH, f))]
+slideshow_movies = [f for f in os.listdir(SLIDESHOW_PATH) if os.path.isfile(os.path.join(SLIDESHOW_PATH, f)) and f.endswith(FILE_FORMATS)]
 
 # start looping, checking peridiodically for button inputs
 while True:
