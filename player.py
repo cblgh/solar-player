@@ -25,7 +25,6 @@ for key, script in MPV_SCRIPTS.viewitems():
     # os.path.expanduser expands relative directories such as ~/dir to /home/pi/dir
     MPV_SCRIPTS[key] = os.path.expanduser(os.path.join(MPV_SCRIPT_DIRECTORY, script))
 
-
 # GPIO pins that are used
 BUTTON1_PIN = 17
 BUTTON2_PIN = 27
