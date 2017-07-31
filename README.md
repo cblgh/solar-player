@@ -19,6 +19,8 @@ BASE_PATH = "/home/pi/Videos"
 # the name of the subfolder of BASE_PATH that will contain your slideshow movies
 # (i.e. 3 movies-in-sequence movies)
 SLIDESHOW_PATH = "{}/slideshow".format(BASE_PATH)
+# the file formats you want to play from the slideshow directory
+FILE_FORMATS = ("mp4", "m4v", "avi", "webm")
 
 # change this from ".", by which is meant the current directory, to the directory of the mpv scripts
 MPV_SCRIPT_DIRECTORY = "."
